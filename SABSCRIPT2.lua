@@ -1,45 +1,58 @@
--- Script to activate all admin panel commands and assign them to different players when ;rocket is clicked
+-- Ensure the script runs on the client side
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
--- Function to simulate a mouse click on a GUI button
-local function clickButton(button)
-    local mouse = game:GetService("Players").LocalPlayer:GetMouse()
-    mouse.Target = button
-    mouse:MouseButton1Click(button.Position)
-end
-
--- Function to send a command to the admin panel for a specific player
-local function sendCommandToPlayer(player, command)
-    local adminPanel = player.PlayerGui:WaitForChild("AdminPanel")
-    local commandInput = adminPanel:WaitForChild("CommandInput")
-    commandInput.Text = command
-    commandInput:CaptureFocus()
-    game:GetService("UserInputService").InputBegan:Wait()
-    commandInput:ReleaseFocus()
-end
-
--- List of all admin commands to be activated
-local allCommands = {
-    ";rocket",
-    ";tiny",
-    ";jail",
-    ";inverse",
-    ";morph",
-    ";jumpscare",
-    ";all" -- Assuming ;all activates all traps/commands
-}
-
--- Function to activate all commands for different players
-local function activateAllCommandsForPlayers()
-    local players = game:GetService("Players"):GetPlayers()
-    for i, player in ipairs(players) do
-        local command = allCommands[i % #allCommands + 1] -- Cycle through commands
-        sendCommandToPlayer(player, command)
+-- Function to set the cooldown for a tool
+local function setToolCooldown(tool, cooldown)
+    local toolScript = tool:FindFirstChildOfClass("LocalScript")
+    if toolScript then
+        toolScript.Disabled = true
+        toolScript:Destroy()
     end
+
+    local newScript = Instance.new("LocalScript")
+    newScript.Name = "ToolCooldownScript"
+    newScript.Parent = tool
+
+    newScript.Source = [[
+        local tool = script.Parent
+        local cooldownTime = ]] .. cooldown .. [[
+        local canUse = true
+
+        tool.Activated:Connect(function()
+            if canUse then
+                canUse = false
+                tool:WaitForChild("Handle").Transparency = 0.5
+                wait(cooldownTime)
+                tool:WaitForChild("Handle").Transparency = 0
+                canUse = true
+            end
+        end)
+    ]]
+
+    newScript.Disabled = false
 end
 
--- Connect the ;rocket command to the activateAllCommandsForPlayers function
-game:GetService("Players").LocalPlayer.PlayerGui.AdminPanel.CommandInput.FocusLost:Connect(function(enterPressed, inputObject)
-    if enterPressed and inputObject.Text == ";rocket" then
-        activateAllCommandsForPlayers()
+-- Function to apply the cooldown to all tools in the game
+local function applyCooldownToAllTools(cooldown)
+    for _, player in ipairs(Players:GetPlayers()) do
+        for _, tool in ipairs(player.Backpack:GetChildren()) do
+            if tool:IsA("Tool") then
+                setToolCooldown(tool, cooldown)
+            end
+        end
     end
-end)
+
+    Players.PlayerAdded:Connect(function(newPlayer)
+        newPlayer.CharacterAdded:Connect(function(character)
+            for _, tool in ipairs(newPlayer.Backpack:GetChildren()) do
+                if tool:IsA("Tool") then
+                    setToolCooldown(tool, cooldown)
+                end
+            end
+        end)
+    end)
+end
+
+-- Apply the cooldown of 2 seconds to all tools
+applyCooldownToAllTools(2)
