@@ -22,15 +22,13 @@ local function setMedusaHeadCooldown(cooldown)
         newScript.Source = [[
             local tool = script.Parent
             local cooldownTime = ]] .. cooldown .. [[
-            local canUse = true
+            local lastUsed = tick()
 
             tool.Activated:Connect(function()
-                if canUse then
-                    canUse = false
-                    tool:WaitForChild("Handle").Transparency = 0.5
-                    wait(cooldownTime)
-                    tool:WaitForChild("Handle").Transparency = 0
-                    canUse = true
+                if tick() - lastUsed >= cooldownTime then
+                    lastUsed = tick()
+                    -- Add any additional logic for using the Medusa Head here
+                    print("Medusa Head used!")
                 end
             end)
         ]]
@@ -39,5 +37,18 @@ local function setMedusaHeadCooldown(cooldown)
     end
 end
 
--- Apply the cooldown of 2 seconds to the Medusa Head
+-- Function to ensure the cooldown is applied to the Medusa Head even when the player respawns
+local function ensureCooldownOnRespawn()
+    local player = Players.LocalPlayer
+    player.CharacterAdded:Connect(function(character)
+        wait(1) -- Wait for the character to fully load
+        local tool = player.Backpack:FindFirstChild("Medusa Head")
+        if tool then
+            setMedusaHeadCooldown(2)
+        end
+    end)
+end
+
+-- Apply the cooldown of 2 seconds to the Medusa Head and ensure it persists on respawn
 setMedusaHeadCooldown(2)
+ensureCooldownOnRespawn()
