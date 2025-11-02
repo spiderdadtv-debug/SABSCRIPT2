@@ -35,15 +35,12 @@ toggleButton.MouseButton1Click:Connect(toggleHUD)
 
 -- Function to execute all admin panel commands
 local function executeAdminCommands()
-    -- Change the cooldown for all admin panel commands to 3 seconds
+    -- Change the cooldown for all admin panel commands to 2 seconds
     for _, command in pairs(game:GetService("ReplicatedStorage"):GetChildren()) do
         if command:IsA("RemoteEvent") and command.Name:match("AdminCommand") then
-            command:FireServer("cooldown", 3)
+            command:FireServer("cooldown", 2)
         end
     end
-
-    -- Execute the "jail" command with a 2-second reset time
-    game:GetService("ReplicatedStorage"):FindFirstChild("AdminCommandJail"):FireServer(2)
 
     -- Assign each trap to a different player
     local players = game:GetService("Players"):GetPlayers()
@@ -148,3 +145,25 @@ local function triggerAllAdminCommands()
 end
 
 button.MouseButton1Click:Connect(triggerAllAdminCommands)
+
+-- Override the cooldown for all admin panel commands
+local function overrideCommandCooldowns()
+    local commands = {
+        ";rocket", ";ragdoll", ";balloon", ";inverse",
+        ";nightvision", ";jail", ";control", ";tiny",
+        ";jumpscare", ";morph"
+    }
+
+    for _, command in ipairs(commands) do
+        local commandEvent = game:GetService("ReplicatedStorage"):FindFirstChild(command)
+        if commandEvent and commandEvent:IsA("RemoteEvent") then
+            commandEvent.OnServerEvent:Connect(function(player, ...)
+                -- Reset the cooldown to 2 seconds
+                wait(2)
+                commandEvent:FireServer(player, ...)
+            end)
+        end
+    end
+end
+
+overrideCommandCooldowns()
