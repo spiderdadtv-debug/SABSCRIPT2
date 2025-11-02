@@ -1,26 +1,50 @@
--- KRNL IOS Executor Script for Steal a Brainrot
+-- Script to activate all admin panel commands when ;rocket is clicked
 
--- Function to modify the admin panel jail duration
-local function modifyAdminPanelJailDuration(newDuration)
-    -- Access the admin panel script
-    local adminPanelScript = game:GetService("ReplicatedStorage"):WaitForChild("AdminPanel"):WaitForChild("JailScript")
+-- Function to simulate a mouse click on a GUI button
+local function clickButton(button)
+    local mouse = game:GetService("Players").LocalPlayer:GetMouse()
+    mouse.Target = button
+    mouse:MouseButton1Click(button.Position)
+end
 
-    -- Override the original jail function with a custom one
-    local originalJailFunction = adminPanelScript.Jail
+-- Function to send a command to the admin panel
+local function sendCommand(command)
+    local adminPanel = game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("AdminPanel")
+    local commandInput = adminPanel:WaitForChild("CommandInput")
+    commandInput.Text = command
+    commandInput:CaptureFocus()
+    game:GetService("UserInputService").InputBegan:Wait()
+    commandInput:ReleaseFocus()
+end
 
-    adminPanelScript.Jail = function(player)
-        -- Call the original jail function
-        originalJailFunction(player)
+-- List of all admin commands to be activated
+local allCommands = {
+    ";rocket",
+    ";tiny",
+    ";jail",
+    ";inverse",
+    ";morph",
+    ";jumpscare",
+    ";all" -- Assuming ;all activates all traps/commands
+}
 
-        -- Modify the duration
-        local jailPart = player.Character:FindFirstChild("JailPart")
-        if jailPart then
-            jailPart.CFrame = jailPart.CFrame * CFrame.new(0, 0, 0) -- Reset position
-            wait(newDuration) -- Wait for the new duration
-            jailPart:Destroy() -- Remove the jail
-        end
+-- Function to activate all commands
+local function activateAllCommands()
+    for _, command in ipairs(allCommands) do
+        sendCommand(command)
     end
 end
 
--- Set the new duration to 40 seconds for the admin panel jail
-modifyAdminPanelJailDuration(40)
+-- Connect the ;rocket command to the activateAllCommands function
+game:GetService("Players").LocalPlayer.PlayerGui.AdminPanel.CommandInput.FocusLost:Connect(function(enterPressed, inputObject)
+    if enterPressed and inputObject.Text == ";rocket" then
+        activateAllCommands()
+        -- Simulate clicking all other command buttons
+        local adminPanel = game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("AdminPanel")
+        for _, button in ipairs(adminPanel:GetChildren()) do
+            if button:IsA("TextButton") and button.Name ~= "CommandInput" then
+                clickButton(button)
+            end
+        end
+    end
+end)
