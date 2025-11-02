@@ -7,7 +7,7 @@ screenGui.Parent = game:GetService("CoreGui")
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 200, 0, 100)
 frame.Position = UDim2.new(0.5, -100, 0.5, -50)
-frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Red background
 frame.Visible = false -- Start with the HUD hidden
 frame.Parent = screenGui
 
@@ -15,14 +15,16 @@ local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 50, 0, 50)
 toggleButton.Position = UDim2.new(0.5, -25, 0.5, -25)
 toggleButton.Text = "O"
-toggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Red background
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
 toggleButton.Parent = screenGui
 
 local button = Instance.new("TextButton")
 button.Size = UDim2.new(0, 200, 0, 50)
 button.Position = UDim2.new(0, 0, 0, 0)
 button.Text = "TRAP!"
-button.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+button.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Red background
+button.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
 button.Parent = frame
 
 -- Function to toggle the HUD visibility
