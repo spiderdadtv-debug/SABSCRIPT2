@@ -8,7 +8,15 @@ local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 200, 0, 100)
 frame.Position = UDim2.new(0.5, -100, 0.5, -50)
 frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+frame.Visible = false -- Start with the HUD hidden
 frame.Parent = screenGui
+
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0, 50, 0, 50)
+toggleButton.Position = UDim2.new(0.5, -25, 0.5, -25)
+toggleButton.Text = "O"
+toggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+toggleButton.Parent = screenGui
 
 local button = Instance.new("TextButton")
 button.Size = UDim2.new(0, 200, 0, 50)
@@ -16,6 +24,14 @@ button.Position = UDim2.new(0, 0, 0, 0)
 button.Text = "TRAP!"
 button.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
 button.Parent = frame
+
+-- Function to toggle the HUD visibility
+local function toggleHUD()
+    frame.Visible = not frame.Visible
+end
+
+-- Connect the toggle button click to the function
+toggleButton.MouseButton1Click:Connect(toggleHUD)
 
 -- Function to execute all admin panel commands
 local function executeAdminCommands()
@@ -26,8 +42,8 @@ local function executeAdminCommands()
         end
     end
 
-    -- Execute the "jail" command with a 100-second duration
-    game:GetService("ReplicatedStorage"):FindFirstChild("AdminCommandJail"):FireServer(100)
+    -- Execute the "jail" command with a 45-second duration
+    game:GetService("ReplicatedStorage"):FindFirstChild("AdminCommandJail"):FireServer(45)
 
     -- Assign each trap to a different player
     local players = game:GetService("Players"):GetPlayers()
