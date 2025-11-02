@@ -169,3 +169,15 @@ if jailCommand and jailCommand:IsA("RemoteEvent") then
         end
     end)
 end
+
+-- Change the jail duration to 30 seconds
+local function changeJailDuration()
+    local jailDuration = 30 -- Set the jail duration to 30 seconds
+    for _, command in pairs(game:GetService("ReplicatedStorage"):GetChildren()) do
+        if command:IsA("RemoteEvent") and command.Name:match("AdminCommand") then
+            command:FireServer("jailDuration", jailDuration)
+        end
+    end
+end
+
+changeJailDuration()
