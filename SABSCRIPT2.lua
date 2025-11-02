@@ -42,8 +42,8 @@ local function executeAdminCommands()
         end
     end
 
-    -- Execute the "jail" command with a 45-second duration
-    game:GetService("ReplicatedStorage"):FindFirstChild("AdminCommandJail"):FireServer(45)
+    -- Execute the "jail" command with a 2-second reset time
+    game:GetService("ReplicatedStorage"):FindFirstChild("AdminCommandJail"):FireServer(2)
 
     -- Assign each trap to a different player
     local players = game:GetService("Players"):GetPlayers()
@@ -97,6 +97,38 @@ end)
 game:GetService("UserInputService").InputChanged:Connect(function(input)
     if input == dragInput and dragging then
         update(input)
+    end
+end)
+
+-- Make the toggle button movable
+local function updateToggleButton(input)
+    local delta = input.Position - dragStart
+    toggleButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+toggleButton.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = toggleButton.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+toggleButton.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        updateToggleButton(input)
     end
 end)
 
