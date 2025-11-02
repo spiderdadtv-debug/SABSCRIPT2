@@ -1,183 +1,49 @@
--- Steal a Brainrot Admin Panel Bypass Script
+-- KRNL IOS Executor Script for Steal a Brainrot
 
--- Create a movable HUD menu
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = game:GetService("CoreGui")
+-- Function to modify the trap duration
+local function modifyTrapDuration(newDuration)
+    -- Access the game's trap function
+    local trapFunction = game:GetService("ReplicatedStorage"):WaitForChild("TrapFunction")
 
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 200, 0, 100)
-frame.Position = UDim2.new(0.5, -100, 0.5, -50)
-frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Red background
-frame.Visible = false -- Start with the HUD hidden
-frame.Parent = screenGui
+    -- Override the original trap function with a custom one
+    local originalTrapFunction = trapFunction.Trap
 
-local toggleButton = Instance.new("TextButton")
-toggleButton.Size = UDim2.new(0, 50, 0, 50)
-toggleButton.Position = UDim2.new(0.5, -25, 0.5, -25)
-toggleButton.Text = "O"
-toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Red background
-toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
-toggleButton.Parent = screenGui
+    trapFunction.Trap = function(player)
+        -- Call the original trap function
+        originalTrapFunction(player)
 
-local button = Instance.new("TextButton")
-button.Size = UDim2.new(0, 200, 0, 50)
-button.Position = UDim2.new(0, 0, 0, 0)
-button.Text = "TRAP!"
-button.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Red background
-button.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
-button.Parent = frame
-
--- Function to toggle the HUD visibility
-local function toggleHUD()
-    frame.Visible = not frame.Visible
-end
-
--- Connect the toggle button click to the function
-toggleButton.MouseButton1Click:Connect(toggleHUD)
-
--- Function to execute all admin panel commands
-local function executeAdminCommands()
-    -- Change the cooldown for all admin panel commands to 2 seconds
-    for _, command in pairs(game:GetService("ReplicatedStorage"):GetChildren()) do
-        if command:IsA("RemoteEvent") and command.Name:match("AdminCommand") then
-            command:FireServer("cooldown", 2)
-        end
-    end
-
-    -- Assign each trap to a different player
-    local players = game:GetService("Players"):GetPlayers()
-    for i, player in ipairs(players) do
-        local commandName = "AdminCommandTrap" .. i
-        local command = game:GetService("ReplicatedStorage"):FindFirstChild(commandName)
-        if command then
-            command:FireServer(player)
+        -- Modify the duration
+        local trapPart = player.Character:FindFirstChild("TrapPart")
+        if trapPart then
+            trapPart.CFrame = trapPart.CFrame * CFrame.new(0, 0, 0) -- Reset position
+            wait(newDuration) -- Wait for the new duration
+            trapPart:Destroy() -- Remove the trap
         end
     end
 end
 
--- Connect the button click to the function
-button.MouseButton1Click:Connect(executeAdminCommands)
+-- Function to modify the admin panel jail duration
+local function modifyAdminPanelJailDuration(newDuration)
+    -- Access the admin panel script
+    local adminPanel = game:GetService("ReplicatedStorage"):WaitForChild("AdminPanel")
 
--- Make the script compatible with KRNL IOS executor
-local krnl = loadstring(game:HttpGet("https://raw.githubusercontent.com/KRNL-IO/KRNL/master/KRNL.lua"))()
-krnl:Load()
+    -- Override the original jail function with a custom one
+    local originalJailFunction = adminPanel.Jail
 
--- Move the HUD menu
-local dragging
-local dragInput
-local dragStart
-local startPos
+    adminPanel.Jail = function(player)
+        -- Call the original jail function
+        originalJailFunction(player)
 
-local function update(input)
-    local delta = input.Position - dragStart
-    frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-end
-
-frame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = frame.Position
-
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end)
-
-frame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-        dragInput = input
-    end
-end)
-
-game:GetService("UserInputService").InputChanged:Connect(function(input)
-    if input == dragInput and dragging then
-        update(input)
-    end
-end)
-
--- Make the toggle button movable
-local function updateToggleButton(input)
-    local delta = input.Position - dragStart
-    toggleButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-end
-
-toggleButton.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = toggleButton.Position
-
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end)
-
-toggleButton.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-        dragInput = input
-    end
-end)
-
-game:GetService("UserInputService").InputChanged:Connect(function(input)
-    if input == dragInput and dragging then
-        updateToggleButton(input)
-    end
-end)
-
--- Ensure all admin panel commands are triggered
-local adminCommands = {
-    "AdminCommandTrap1", "AdminCommandTrap2", "AdminCommandTrap3", "AdminCommandTrap4",
-    "AdminCommandTrap5", "AdminCommandTrap6", "AdminCommandTrap7", "AdminCommandTrap8", "AdminCommandTrap9"
-}
-
-local function triggerAllAdminCommands()
-    for _, commandName in ipairs(adminCommands) do
-        local command = game:GetService("ReplicatedStorage"):FindFirstChild(commandName)
-        if command then
-            command:FireServer()
+        -- Modify the duration
+        local jailPart = player.Character:FindFirstChild("JailPart")
+        if jailPart then
+            jailPart.CFrame = jailPart.CFrame * CFrame.new(0, 0, 0) -- Reset position
+            wait(newDuration) -- Wait for the new duration
+            jailPart:Destroy() -- Remove the jail
         end
     end
 end
 
-button.MouseButton1Click:Connect(triggerAllAdminCommands)
-
--- Override the cooldown for the ;jail command
-local jailCommand = game:GetService("ReplicatedStorage"):FindFirstChild(";jail")
-if jailCommand and jailCommand:IsA("RemoteEvent") then
-    local lastUsed = 0
-
-    jailCommand.OnServerEvent:Connect(function(player, ...)
-        local currentTime = tick()
-        if currentTime - lastUsed >= 2 then
-            lastUsed = currentTime
-            -- Proceed with the jail command
-            jailCommand:FireServer(player, ...)
-        else
-            -- Display the cooldown message
-            game.StarterGui:SetCore("ChatMakeSystemMessage", {
-                Text = "That command is on cooldown. (2s)",
-                Color = Color3.new(1, 0, 0), -- Red color
-                TextSize = 18
-            })
-        end
-    end)
-end
-
--- Change the jail duration to 30 seconds
-local function changeJailDuration()
-    local jailDuration = 30 -- Set the jail duration to 30 seconds
-    for _, command in pairs(game:GetService("ReplicatedStorage"):GetChildren()) do
-        if command:IsA("RemoteEvent") and command.Name:match("AdminCommand") then
-            command:FireServer("jailDuration", jailDuration)
-        end
-    end
-end
-
-changeJailDuration()
+-- Set the new duration to 40 seconds for both trap and admin panel jail
+modifyTrapDuration(40)
+modifyAdminPanelJailDuration(40)
