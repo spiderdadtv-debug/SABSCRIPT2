@@ -1,36 +1,14 @@
 -- KRNL IOS Executor Script for Steal a Brainrot
 
--- Function to modify the trap duration
-local function modifyTrapDuration(newDuration)
-    -- Access the game's trap function
-    local trapFunction = game:GetService("ReplicatedStorage"):WaitForChild("TrapFunction")
-
-    -- Override the original trap function with a custom one
-    local originalTrapFunction = trapFunction.Trap
-
-    trapFunction.Trap = function(player)
-        -- Call the original trap function
-        originalTrapFunction(player)
-
-        -- Modify the duration
-        local trapPart = player.Character:FindFirstChild("TrapPart")
-        if trapPart then
-            trapPart.CFrame = trapPart.CFrame * CFrame.new(0, 0, 0) -- Reset position
-            wait(newDuration) -- Wait for the new duration
-            trapPart:Destroy() -- Remove the trap
-        end
-    end
-end
-
 -- Function to modify the admin panel jail duration
 local function modifyAdminPanelJailDuration(newDuration)
     -- Access the admin panel script
-    local adminPanel = game:GetService("ReplicatedStorage"):WaitForChild("AdminPanel")
+    local adminPanelScript = game:GetService("ReplicatedStorage"):WaitForChild("AdminPanel"):WaitForChild("JailScript")
 
     -- Override the original jail function with a custom one
-    local originalJailFunction = adminPanel.Jail
+    local originalJailFunction = adminPanelScript.Jail
 
-    adminPanel.Jail = function(player)
+    adminPanelScript.Jail = function(player)
         -- Call the original jail function
         originalJailFunction(player)
 
@@ -44,6 +22,5 @@ local function modifyAdminPanelJailDuration(newDuration)
     end
 end
 
--- Set the new duration to 40 seconds for both trap and admin panel jail
-modifyTrapDuration(40)
+-- Set the new duration to 40 seconds for the admin panel jail
 modifyAdminPanelJailDuration(40)
