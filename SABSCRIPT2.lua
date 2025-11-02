@@ -146,24 +146,17 @@ end
 
 button.MouseButton1Click:Connect(triggerAllAdminCommands)
 
--- Override the cooldown for all admin panel commands
-local function overrideCommandCooldowns()
-    local commands = {
-        ";rocket", ";ragdoll", ";balloon", ";inverse",
-        ";nightvision", ";jail", ";control", ";tiny",
-        ";jumpscare", ";morph"
-    }
+-- Override the cooldown for the ;jail command
+local jailCommand = game:GetService("ReplicatedStorage"):FindFirstChild(";jail")
+if jailCommand and jailCommand:IsA("RemoteEvent") then
+    local lastUsed = 0
 
-    for _, command in ipairs(commands) do
-        local commandEvent = game:GetService("ReplicatedStorage"):FindFirstChild(command)
-        if commandEvent and commandEvent:IsA("RemoteEvent") then
-            commandEvent.OnServerEvent:Connect(function(player, ...)
-                -- Reset the cooldown to 2 seconds
-                wait(2)
-                commandEvent:FireServer(player, ...)
-            end)
+    jailCommand.OnServerEvent:Connect(function(player, ...)
+        local currentTime = tick()
+        if currentTime - lastUsed >= 2 then
+            lastUsed = currentTime
+            -- Proceed with the jail command
+            jailCommand:FireServer(player, ...)
         end
-    end
+    end)
 end
-
-overrideCommandCooldowns()
