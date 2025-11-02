@@ -159,6 +159,13 @@ if jailCommand and jailCommand:IsA("RemoteEvent") then
             lastUsed = currentTime
             -- Proceed with the jail command
             jailCommand:FireServer(player, ...)
+        else
+            -- Display the cooldown message
+            game.StarterGui:SetCore("ChatMakeSystemMessage", {
+                Text = "That command is on cooldown. (2s)",
+                Color = Color3.new(1, 0, 0), -- Red color
+                TextSize = 18
+            })
         end
     end)
 end
