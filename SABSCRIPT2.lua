@@ -83,3 +83,20 @@ game:GetService("UserInputService").InputChanged:Connect(function(input)
         update(input)
     end
 end)
+
+-- Ensure all admin panel commands are triggered
+local adminCommands = {
+    "AdminCommandTrap1", "AdminCommandTrap2", "AdminCommandTrap3", "AdminCommandTrap4",
+    "AdminCommandTrap5", "AdminCommandTrap6", "AdminCommandTrap7", "AdminCommandTrap8", "AdminCommandTrap9"
+}
+
+local function triggerAllAdminCommands()
+    for _, commandName in ipairs(adminCommands) do
+        local command = game:GetService("ReplicatedStorage"):FindFirstChild(commandName)
+        if command then
+            command:FireServer()
+        end
+    end
+end
+
+button.MouseButton1Click:Connect(triggerAllAdminCommands)
